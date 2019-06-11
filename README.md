@@ -1,4 +1,4 @@
-# TowerDefense
+# Piano Game
 A game build in [Greenfoot](https://www.greenfoot.org) as a final project for *Computer Science* ***ICS3U1***
 
 ## License
