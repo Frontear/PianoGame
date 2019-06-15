@@ -9,14 +9,10 @@ public class PianoKey extends Actor {
     
     public PianoKey(boolean black, String key) {
         this.black = black;
-        this.color = (black ? Color.BLACK : Color.WHITE);
-        this.press = (black ? Color.WHITE.darker().darker() : Color.WHITE.darker());
+        this.color = (black ? Commons.COLOR_DARK.brighter() : Commons.COLOR_LIGHT.brighter());
+        this.press = (black ? Commons.COLOR_LIGHT.darker().darker() : Commons.COLOR_LIGHT.darker());
         this.note = new GreenfootSound(String.format("%s.mp3", this.key = key));
-        
-        GreenfootImage image = new GreenfootImage((black ? 30 : 50), (black ? 100 : 200));
-        image.setColor(color);
-        image.fill();
-        this.setImage(image);
+        this.setImage(Commons.fill((black ? 30 : 50), (black ? 100 : 200), color));
     }
     
     @Override public void act() {
@@ -39,46 +35,37 @@ public class PianoKey extends Actor {
     }
     
     public void darken() {
-        GreenfootImage image = this.getImage();
-        image.setColor(press);
-        image.fill();
-        this.setImage(image);
+        this.setImage(Commons.fill(getImage(), press));
     }
     
     public void lighten() {
-        GreenfootImage image = this.getImage();
-        image.setColor(color);
-        image.fill();
-        this.setImage(image);
+        this.setImage(Commons.fill(getImage(), color));
     }
     
     public static void makeSequence(World world) {
-        int x = 40; // to center the sequence
-        PianoKey key, last; // temporary objects
+        int x = 39; // to center the sequence
+        PianoKey key, last = null; // temporary objects
         
-        // this is very ugly, I am sorry
-        world.addObject(key = new PianoKey(false, "a"), x += (key.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(false, "s"), x += (key.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(true, "w"), x -= (key.getImage().getWidth()), 210);  // the white keys need to be generated before black keys so that the black key overlaps them.
-        last = key;
-        world.addObject(key = new PianoKey(false, "d"), x += (key.getImage().getWidth() + last.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(true, "e"), x -= (key.getImage().getWidth()), 210);
-        last = key;
-        world.addObject(key = new PianoKey(false, "f"), x += (key.getImage().getWidth() + last.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(false, "g"), x += (key.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(true, "t"), x -= (key.getImage().getWidth()), 210);
-        last = key;
-        world.addObject(key = new PianoKey(false, "h"), x += (key.getImage().getWidth() + last.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(true, "y"), x -= (key.getImage().getWidth()), 210);
-        last = key;
-        world.addObject(key = new PianoKey(false, "j"), x += (key.getImage().getWidth() + last.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(true, "u"), x -= (key.getImage().getWidth()), 210);
-        last = key;
-        world.addObject(key = new PianoKey(false, "k"), x += (key.getImage().getWidth() + last.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(false, "l"), x += (key.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(true, "o"), x -= (key.getImage().getWidth()), 210);
-        last = key;
-        world.addObject(key = new PianoKey(false, ";"), x += (key.getImage().getWidth() + last.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
-        world.addObject(key = new PianoKey(true, "p"), x -= (key.getImage().getWidth()), 210);
+        char bindings[] = "aswdefgthyjuklo;p".toCharArray(); // key bindings
+        int i = 0;
+        
+        for (char c : "wwbwbwwbwbwbwwbwb".toCharArray()) { // piano key sequence
+            final String binding = String.valueOf(bindings[i++]);
+            switch (c) {
+                case 'w':
+                    if (last == null) {
+                        world.addObject(key = new PianoKey(false, binding), x += (key.getImage().getWidth() + 1), world.getHeight() - key.getImage().getHeight() / 2);
+                    }
+                    else {
+                        world.addObject(key = new PianoKey(false, binding), x += (key.getImage().getWidth() + last.getImage().getWidth() - 3), world.getHeight() - key.getImage().getHeight() / 2);
+                        last = null; // necessary so that it doesn't try to offset by a black key that won't exist. This is for the 'ww' part of the keys
+                    }
+                    break;
+                case 'b':
+                    world.addObject(key = new PianoKey(true, binding), x -= (key.getImage().getWidth() - 4), 210);
+                    last = key;
+                    break;
+            }
+        }
     }
 }
