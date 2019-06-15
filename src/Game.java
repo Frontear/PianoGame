@@ -1,7 +1,8 @@
 import greenfoot.*;
 
 public class Game extends World {
-    private GreenfootImage text, button, button_text;
+    private boolean main_menu = true, made_sequence;
+    
     public Game() {
         super(640, 360, 1); // 16:9 aspect ratio
         
@@ -11,27 +12,32 @@ public class Game extends World {
         background.fill();
         this.setBackground(background);
         
-        // example text
-        this.text = new GreenfootImage("Piano Game", 32, new Color(219, 219, 219), background.getColor());
-        
-        // button
-        this.button = new GreenfootImage(200, 40);
-        this.button.setColor(new Color(219, 219, 219));
-        this.button.fill();
-        
-        // button text
-        this.button_text = new GreenfootImage("Start", 24, new Color(36, 36, 36), button.getColor());
+    }
+    
+    @Override public void started() {
+        GreenfootImage title = new GreenfootImage("Piano Game", 42, new Color(219, 219, 219), new Color(36, 36, 36));
+        getBackground().drawImage(title, (getWidth() - title.getWidth()) / 2, getHeight() / 8);
+        Actor button = new Button("Start", 160, 70, new Color(236, 236, 236));
+        addObject(button, getWidth() / 2, (getHeight() - getHeight() / 8) - button.getImage().getHeight() / 16);
     }
     
     @Override public void act() {
-        getBackground().drawImage(text, (getWidth() - text.getWidth()) / 2, (getHeight() - text.getHeight()) / 8);
-        getBackground().drawImage(button, (getWidth() - button.getWidth()) / 2, (getHeight() - button.getHeight() * 2));
-        getBackground().drawImage(button_text, ((getWidth() - button_text.getWidth()) / 2), (getHeight() - button.getHeight() * 2) + button_text.getHeight() / 3);
-    }
-    
-    // https://stackoverflow.com/a/13030061
-    public Color getContrastColor(Color color) {
-        double y = (299 * color.getRed() + 587 * color.getGreen() + 114 * color.getBlue()) / 1000;
-        return y >= 128 ? Color.BLACK : Color.WHITE;
+        if (main_menu) {
+            MouseInfo info = Greenfoot.getMouseInfo();
+            if (info != null) {
+                Actor actor = info.getActor();
+                if (actor instanceof Button && info.getButton() == 1) { // left click
+                    showText("", actor.getX(), actor.getY()); // this is necessary to remove the text created by button
+                    removeObject(actor);
+                    main_menu = false;
+                }
+            }
+        }
+        else {
+            if (!made_sequence) {
+                PianoKey.makeSequence(this);
+                made_sequence = true;
+            }
+        }
     }
 }
