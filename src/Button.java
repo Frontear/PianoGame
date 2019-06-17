@@ -7,7 +7,11 @@ public class Button extends Actor {
         this.text = text;
     }
     
-    @Override public void act() {
-        getWorld().showText(text, getX(), getY());
+    @Override public void addedToWorld(World world) {
+        Commons.drawString(text, getX(), getY(), world);
+    }
+    
+    public String getText() {
+        return text;
     }
 }
