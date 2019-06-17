@@ -5,7 +5,7 @@ public class FallingKey extends Actor {
     private boolean has_failed = false; // failed is set when a life is lost
     private final PianoKey key;
     public FallingKey(PianoKey key) {
-        this.setImage(Commons.fill(key.getImage().getWidth(), 20, Commons.SOFT_PURPLE.darker()));
+        this.setImage(Commons.fill(key.getImage().getWidth(), key.black ? 10 : 20, Commons.SOFT_PURPLE.darker()));
         this.key = key;
     }
     

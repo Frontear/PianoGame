@@ -10,6 +10,10 @@ public class PianoKey extends Actor {
     private final GreenfootSound note; // sound files from http://theremin.music.uiowa.edu/MISpiano.html
     private FallingKey falling_key; // a falling rectangle, which will fall over the key that must be played
     private boolean is_active = false; // is active represents the note that must next be played
+    private static int factor;
+    
+    private final Timer timer = new Timer();
+    private boolean can_reset = true;
     
     public PianoKey(boolean black, String key) {
         this.black = black;
@@ -41,23 +45,30 @@ public class PianoKey extends Actor {
         }
         
         if (is_active) {
-            falling_key.setLocation(falling_key.getX(), falling_key.getY() + 1);
+            falling_key.setLocation(falling_key.getX(), falling_key.getY() + factor);
             if (falling_key.isIntersecting()) {
-                falling_key.setFail(!key_held); // no leniency, this might be too harsh
-                if (!falling_key.shorten(1)) { // it can no longer shorten further
+                if (can_reset) {
+                    timer.reset();
+                    can_reset = false;
+                }
+                
+                if (timer.hasElapsedMS(100 - factor * 10)) { // it takes around 140ms to completely fall
+                    falling_key.setFail(!key_held); // the above is a leniency factor
+                }
+                if (!falling_key.shorten(factor)) { // it can no longer shorten further
                     is_active = false;
                     getWorld().removeObject(falling_key);
-                }
-                if (falling_key.hasFailed()) {
-                    if (!penalize_life) {
-                        --((Game) getWorld()).lives;
-                        penalize_life = true; // don't penalize more than once
+                    if (falling_key.hasFailed()) {
+                        if (!penalize_life) {
+                            --((Game) getWorld()).lives;
+                            penalize_life = true; // don't penalize more than once
+                        }
                     }
-                }
-                else {
-                    if (!increase_score) {
-                        ++((Game) getWorld()).score;
-                        increase_score = true;
+                    else {
+                        if (!increase_score) {
+                            ++((Game) getWorld()).score;
+                            increase_score = true;
+                        }
                     }
                 }
             }
@@ -92,11 +103,15 @@ public class PianoKey extends Actor {
     }
     
     public static void tick(World world) {
+        factor = (((Game) world).score / 10) + 1; // every 10 score, factor increases. +1 is there so that 0-10 is 1, 10-20 is 2, so on and so forth
+        
         List<PianoKey> keys = world.getObjects(PianoKey.class);
         if (keys.stream().noneMatch(k -> k.is_active)) { // if no key is active
             int key = ThreadLocalRandom.current().nextInt(0, keys.size());
             keys.get(key).falling_key = new FallingKey(keys.get(key)); // reset it each time
             keys.get(key).penalize_life = false; // reset this
+            keys.get(key).increase_score = false; // reset this
+            keys.get(key).can_reset = true; // reset this
             world.addObject(keys.get(key).falling_key, keys.get(key).getX(), 0 - keys.get(key).falling_key.getImage().getHeight());
             keys.get(key).is_active = true;
         }

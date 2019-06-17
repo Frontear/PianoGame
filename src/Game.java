@@ -46,8 +46,9 @@ public class Game extends World {
             if (!freeplay) { // lives and scores don't matter in freeplay
                 if (lives != 0) {
                     PianoKey.tick(this);
-                    Commons.drawString("Lives: " + lives, 36, 7, this);
-                    Commons.drawString("Score: " + score, 38, 7 + 25, this);
+                    GreenfootImage image; // temporary object
+                    getBackground().drawImage(image = new GreenfootImage("Lives: " + lives, 25, Commons.COLOR_LIGHT, getBackground().getColor(), Commons.COLOR_DARK), 0, 0);
+                    getBackground().drawImage(new GreenfootImage("Score: " + score, 25, Commons.COLOR_LIGHT, getBackground().getColor(), Commons.COLOR_DARK), 0, image.getHeight());
                 }
                 else {
                     Commons.reset(this);
