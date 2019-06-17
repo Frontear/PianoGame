@@ -23,8 +23,13 @@ public class FallingKey extends Actor {
     }
     
     public void setFail(boolean fail) {
+        // takes 5 ticks to fall a black falling note, 10 ticks for a white one
+        int delay = (key.black ? 2 : 5) - PianoKey.factor; // reduce by factor, so that leniency reduces with falling speed
+        if (delay < 0) {
+            delay = 0; // It scales extremely fast and the game will become very difficult
+        }
         // only set if it hasn't been set already
-        if (!this.has_failed && game.timer > (key.black ? 2 : 5)) { // takes 5 ticks to fall a black falling note, 10 ticks for a white one
+        if (!this.has_failed && game.timer > delay) {
             this.has_failed = fail;
         }
     }

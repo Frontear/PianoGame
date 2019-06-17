@@ -10,7 +10,7 @@ public class PianoKey extends Actor {
     private final GreenfootSound note; // sound files from http://theremin.music.uiowa.edu/MISpiano.html
     private FallingKey falling_key; // a falling rectangle, which will fall over the key that must be played
     private boolean is_active = false; // is active represents the note that must next be played
-    private static int factor; // increases to increase difficulty
+    static int factor; // increases to increase difficulty
     
     private boolean can_reset = true; // can reset the game timer
     
@@ -44,7 +44,6 @@ public class PianoKey extends Actor {
         
         if (is_active) {
             falling_key.setLocation(falling_key.getX(), falling_key.getY() + factor);
-            getWorld().showText((((Game) getWorld()).timer) + "", 320, 100);
             if (falling_key.isIntersecting()) {
                 if (can_reset) {
                     ((Game) getWorld()).timer = 0;
