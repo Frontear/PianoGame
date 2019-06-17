@@ -12,7 +12,6 @@ public class PianoKey extends Actor {
     private boolean is_active = false; // is active represents the note that must next be played
     private static int factor;
     
-    private final Timer timer = new Timer();
     private boolean can_reset = true;
     
     public PianoKey(boolean black, String key) {
@@ -46,15 +45,14 @@ public class PianoKey extends Actor {
         
         if (is_active) {
             falling_key.setLocation(falling_key.getX(), falling_key.getY() + factor);
+            getWorld().showText((((Game) getWorld()).timer) + "", 320, 100);
             if (falling_key.isIntersecting()) {
                 if (can_reset) {
-                    timer.reset();
+                    ((Game) getWorld()).timer = 0;
                     can_reset = false;
                 }
                 
-                if (timer.hasElapsedMS(100 - factor * 10)) { // it takes around 140ms to completely fall
-                    falling_key.setFail(!key_held); // the above is a leniency factor
-                }
+                falling_key.setFail(!key_held); // has a built in leniency factor
                 if (!falling_key.shorten(factor)) { // it can no longer shorten further
                     is_active = false;
                     getWorld().removeObject(falling_key);
@@ -73,6 +71,15 @@ public class PianoKey extends Actor {
                 }
             }
         }
+    }
+    
+    private void set_active() {
+        falling_key = new FallingKey(this);
+        penalize_life = false;
+        increase_score = false;
+        can_reset = true;
+        getWorld().addObject(falling_key, getX(), 0 - falling_key.getImage().getHeight());
+        is_active = true;
     }
     
     public static void makeSequence(World world) {
@@ -108,12 +115,7 @@ public class PianoKey extends Actor {
         List<PianoKey> keys = world.getObjects(PianoKey.class);
         if (keys.stream().noneMatch(k -> k.is_active)) { // if no key is active
             int key = ThreadLocalRandom.current().nextInt(0, keys.size());
-            keys.get(key).falling_key = new FallingKey(keys.get(key)); // reset it each time
-            keys.get(key).penalize_life = false; // reset this
-            keys.get(key).increase_score = false; // reset this
-            keys.get(key).can_reset = true; // reset this
-            world.addObject(keys.get(key).falling_key, keys.get(key).getX(), 0 - keys.get(key).falling_key.getImage().getHeight());
-            keys.get(key).is_active = true;
+            keys.get(key).set_active();
         }
     }
 }

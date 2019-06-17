@@ -13,18 +13,19 @@ public class Game extends World {
     @Override public void started() {
         GreenfootImage title = new GreenfootImage("Piano Mania", 42, Commons.COLOR_LIGHT, Commons.COLOR_DARK);
         getBackground().drawImage(title, (getWidth() - title.getWidth()) / 2, getHeight() / 8);
-        Actor button = new Button("Start", 160, 40, Commons.COLOR_LIGHT.brighter());
-        Actor freeplay = new Button("Freeplay", 100, 30, Commons.COLOR_LIGHT.brighter());
-        addObject(button, getWidth() / 2, (getHeight() - getHeight() / 8) - button.getImage().getHeight() / 16);
-        addObject(freeplay, getWidth() / 2, (getHeight() - getHeight() / 4) - freeplay.getImage().getHeight() / 16);
+
+        Actor actor; // temporary object
+        addObject(actor = new Button("Start", 160, 40, Commons.COLOR_LIGHT.brighter()), getWidth() / 2, (getHeight() - getHeight() / 8) - actor.getImage().getHeight() / 16);
+        addObject(actor = new Button("Freeplay", 160, 40, Commons.COLOR_LIGHT.brighter()), getWidth() / 2, (getHeight() - getHeight() / 4) - actor.getImage().getHeight() / 16);
         
         // instructions
-        Commons.drawString("1. Press the keys on the notes to play them", getWidth() / 2, getHeight() / 2, this);
-        Commons.drawString("2. Try to play in time to the falling note", getWidth() / 2, getHeight() / 2 + 25, this);
-        Commons.drawString("3. " + lives + " strikes and you are out", getWidth() / 2, getHeight() / 2 + 50, this);
+        Commons.drawString("1. Press the keys on the notes to play them", getWidth() / 2, getHeight() / 3, this);
+        Commons.drawString("2. Try to play in time to the falling note", getWidth() / 2, getHeight() / 3 + 25, this);
+        Commons.drawString("3. " + lives + " strikes and you are out", getWidth() / 2, getHeight() / 3 + 50, this);
+        Commons.drawString("4. Game will get progressively more difficult", getWidth() / 2, getHeight() / 3 + 75, this);
     }
     
-    public int lives = 5, score = 0; // has a minimum of 5 lives
+    public int lives = 5, score = 0, timer = 0; // has a minimum of 5 lives, handles score, represents ticks per second (set by Greenfoot's speed thing)
     @Override public void act() {
         if (main_menu) {
             MouseInfo info = Greenfoot.getMouseInfo();
@@ -32,7 +33,7 @@ public class Game extends World {
                 Actor actor = info.getActor();
                 if (actor instanceof Button && info.getButton() == 1) { // left click
                     freeplay = ((Button) actor).getText().equals("Freeplay");
-                    setBackground(Commons.reset(this));
+                    Commons.reset(this);
                     main_menu = false;
                 }
             }
@@ -44,6 +45,7 @@ public class Game extends World {
             }
             
             if (!freeplay) { // lives and scores don't matter in freeplay
+                timer++;
                 if (lives != 0) {
                     PianoKey.tick(this);
                     GreenfootImage image; // temporary object

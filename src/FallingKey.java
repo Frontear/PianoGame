@@ -4,9 +4,11 @@ import java.util.*;
 public class FallingKey extends Actor {
     private boolean has_failed = false; // failed is set when a life is lost
     private final PianoKey key;
+    private final Game game;
     public FallingKey(PianoKey key) {
         this.setImage(Commons.fill(key.getImage().getWidth(), key.black ? 10 : 20, Commons.SOFT_PURPLE.darker()));
         this.key = key;
+        this.game = (Game) key.getWorld();
     }
     
     public boolean isIntersecting() {
@@ -21,7 +23,8 @@ public class FallingKey extends Actor {
     }
     
     public void setFail(boolean fail) {
-        if (!this.has_failed) { // only set failure if it hasn't already failed
+        // only set if it hasn't been set already
+        if (!this.has_failed && game.timer > (key.black ? 2 : 5)) { // takes 5 ticks to fall a black falling note, 10 ticks for a white one
             this.has_failed = fail;
         }
     }

@@ -11,10 +11,10 @@ public class Commons {
         return fill(new GreenfootImage(width, (height <= 0 ? 1 : height)), color);
     }
     
-    public static GreenfootImage reset(World world) {
+    public static void reset(World world) {
         positions.forEach((e) -> world.showText("", e.getKey(), e.getValue())); // remove all showText
         world.getObjects(Actor.class).forEach(a -> world.removeObject(a)); // remove all actors
-        return fill(world.getBackground(), world.getBackground().getColor()); // clear the background color, which removes drawImage stuff
+        world.setBackground(fill(world.getBackground(), world.getBackground().getColor())); // clear the background color, which removes drawImage stuff
     }
     
     public static GreenfootImage fill(GreenfootImage image, Color color) {
