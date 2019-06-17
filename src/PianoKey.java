@@ -6,13 +6,13 @@ public class PianoKey extends Actor {
     final boolean black; // package-private, so that fallingkey can read it
     private boolean key_held = false; // we need a separate boolean so that we don't call stop and play over and over (act is a fast loop, if the key remains down, it wouldn't play anything)
     public final Color color, press; // the default and press down colors. 
-    private final String key;
+    private final String key; // the key that must be pressed to play the note
     private final GreenfootSound note; // sound files from http://theremin.music.uiowa.edu/MISpiano.html
     private FallingKey falling_key; // a falling rectangle, which will fall over the key that must be played
     private boolean is_active = false; // is active represents the note that must next be played
-    private static int factor;
+    private static int factor; // increases to increase difficulty
     
-    private boolean can_reset = true;
+    private boolean can_reset = true; // can reset the game timer
     
     public PianoKey(boolean black, String key) {
         this.black = black;
@@ -20,7 +20,6 @@ public class PianoKey extends Actor {
         this.press = (black ? Commons.COLOR_LIGHT.darker().darker() : Commons.COLOR_LIGHT.darker());
         this.note = new GreenfootSound(String.format("%s.mp3", this.key = key));
         this.setImage(Commons.fill((black ? 30 : 50), (black ? 100 : 200), color));
-        this.falling_key = new FallingKey(this);
     }
     
     private boolean penalize_life = false, increase_score = false;
